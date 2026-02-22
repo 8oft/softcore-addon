@@ -1,6 +1,6 @@
-# Meteor Addon Template
+# Softcore Addon
 
-A template to allow easy usage of the Meteor Addon API.
+A softcore addon for Meteor Client by 8oft.
 
 ### How to use
 

@@ -31,3 +31,8 @@ bin/
 # fabric
 
 run/
+
+# testing stuff
+
+plugins-to-test/
+NOTES.md

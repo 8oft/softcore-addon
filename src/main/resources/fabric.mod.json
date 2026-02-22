@@ -1,24 +1,24 @@
 {
   "schemaVersion": 1,
-  "id": "addon-template",
+  "id": "softcore-addon",
   "version": "${version}",
-  "name": "Addon Template",
-  "description": "An addon template for Meteor Client addons.",
+  "name": "Softcore Addon",
+  "description": "A softcore addon for Meteor Client by 8oft.",
   "authors": [
-    "seasnail"
+    "8oft"
   ],
   "contact": {
-    "sources": "https://github.com/MeteorDevelopment/meteor-addon-template"
+    "sources": "https://github.com/8oft/meteor-softcore-addon"
   },
-  "icon": "assets/template/icon.png",
+  "icon": "assets/softcore/icon.png",
   "environment": "client",
   "entrypoints": {
     "meteor": [
-      "com.example.addon.AddonTemplate"
+      "com.softcore.addon.SoftcoreAddon"
     ]
   },
   "mixins": [
-    "addon-template.mixins.json"
+    "softcore-addon.mixins.json"
   ],
   "custom": {
     "meteor-client:color": "225,25,25",
