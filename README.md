@@ -1,3 +1,5 @@
 # Softcore Addon
 
-Moved to https://github.com/8oft/softcore-addon
+A Softcore addon for Meteor Client by Softcore Team
+
+Join our Discord for free low quality dupes: https://discord.gg/ECnEBx55sD 
