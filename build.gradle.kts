@@ -3,7 +3,6 @@ plugins {
 }
 
 // Version configuration
-val mcVersions = listOf("1.21.4", "1.21.11")
 val selectedVersion = (project.findProperty("mcVersion") as String?) ?: "1.21.11"
 
 base {
@@ -42,8 +41,8 @@ repositories {
 dependencies {
     // Fabric
     minecraft("com.mojang:minecraft:$mcVersion")
-    mappings(variantOf("net.fabricmc:yarn:$yarnVersion") { classifier("v2") })
-    modImplementation("net.fabricmc:fabric-loader:${libs.versions.fabric.loader.get()}")
+    mappings("net.fabricmc:yarn:$yarnVersion:v2")
+    modImplementation(libs.fabric.loader)
 
     // Meteor
     modImplementation("meteordevelopment:meteor-client:$meteorVersion")
@@ -83,37 +82,5 @@ tasks {
         options.release = 21
         options.compilerArgs.add("-Xlint:deprecation")
         options.compilerArgs.add("-Xlint:unchecked")
-    }
-
-    // Build tasks for each version
-    register("build1_21_4") {
-        description = "Build for Minecraft 1.21.4"
-        dependsOn(":clean", "build")
-    }
-
-    register("build1_21_11") {
-        description = "Build for Minecraft 1.21.11"
-        dependsOn(":clean", "build")
-    }
-
-    register("buildAll") {
-        description = "Build for all supported versions (1.21.4 and 1.21.11)"
-        doLast {
-            println("Building Softcore Addon v${libs.versions.mod.version.get()} for all versions...")
-            
-            // Build 1.21.4
-            println("\n--- Building for Minecraft 1.21.4 ---")
-            project.exec {
-                commandLine("./gradlew", "clean", "build", "-PmcVersion=1.21.4")
-            }
-            
-            // Build 1.21.11
-            println("\n--- Building for Minecraft 1.21.11 ---")
-            project.exec {
-                commandLine("./gradlew", "clean", "build", "-PmcVersion=1.21.11")
-            }
-            
-            println("\n✓ Build complete! Check build/libs/ for JARs")
-        }
     }
 }

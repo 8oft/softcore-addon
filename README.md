@@ -10,34 +10,29 @@ Join our Discord for free low quality dupes: https://discord.gg/ECnEBx55sD
 
 ## Building
 
-### Build for All Versions (Recommended)
-Automatically builds separate JARs for both 1.21.4 and 1.21.11:
-
+### For Minecraft 1.21.11 (Default)
 ```bash
-./gradlew buildAll
+./gradlew clean build
 ```
+Output: `build/libs/softcore-addon-0.2.0-1.21.11.jar` (47.5 KB)
 
-Output: `build/libs/softcore-addon-0.2.0-1.21.4.jar` and `build/libs/softcore-addon-0.2.0-1.21.11.jar`
-
-### Build for Specific Version
-
-**For Minecraft 1.21.11 (Default):**
+### For Minecraft 1.21.4
 ```bash
-./gradlew build
+./gradlew clean build "-PmcVersion=1.21.4"
 ```
-Output: `build/libs/softcore-addon-0.2.0-1.21.11.jar`
+Output: `build/libs/softcore-addon-0.2.0-1.21.4.jar` (48.6 KB)
 
-**For Minecraft 1.21.4:**
+### Build Both Versions
 ```bash
-./gradlew build -PmcVersion=1.21.4
+./gradlew clean build
+./gradlew clean build "-PmcVersion=1.21.4"
 ```
-Output: `build/libs/softcore-addon-0.2.0-1.21.4.jar`
 
 ## Version Support
 
-This addon is built for specific Minecraft versions. Each JAR is optimized for its target version:
-- **softcore-addon-0.2.0-1.21.4.jar** - Minecraft 1.21.4
-- **softcore-addon-0.2.0-1.21.11.jar** - Minecraft 1.21.11 (Default build)
+Each JAR is built for its specific Minecraft version:
+- **softcore-addon-0.2.0-1.21.4.jar** - For Minecraft 1.21.4
+- **softcore-addon-0.2.0-1.21.11.jar** - For Minecraft 1.21.11
 
 ## Features
 
