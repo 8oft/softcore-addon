@@ -3,19 +3,36 @@
 ## [0.2.0] - 2026-02-24
 
 ### Added
-- Multi-version support for Minecraft 1.21.4 and 1.21.11
-- All packet manipulation modules now compatible with both versions
+- Dual-version build system supporting Minecraft 1.21.4 and 1.21.11
+- `./gradlew buildAll` - Builds separate JARs for both versions automatically
+- Version-specific JAR outputs: `softcore-addon-0.2.0-1.21.4.jar` and `softcore-addon-0.2.0-1.21.11.jar`
 
 ### Changed
 - Updated version from 0.1.0 to 0.2.0
-- Updated fabric.mod.json to support both 1.21.4 and 1.21.11
-- Improved README with version information and build instructions
-- Built with Meteor Client 1.21.11-SNAPSHOT (API-compatible with 1.21.4)
+- Refactored build.gradle.kts to support dynamic version selection
+- Added version mapping for yarn, meteor, and minecraft dependencies in build.gradle.kts
+- JAR filenames now include target Minecraft version
+- Updated fabric.mod.json to use version template variable (filled per build)
+- Improved README with comprehensive build instructions
+- Added gradle.properties configuration for build targeting
 
 ### Technical Details
-- Minecraft versions use compatible APIs for all Meteor Client features
-- No version-specific code required for either 1.21.4 or 1.21.11
-- Single JAR artifact works with both game versions
+- Each build generates a JAR specifically optimized for its target version
+- Version selection via `-PmcVersion=1.21.4` or `-PmcVersion=1.21.11` (default)
+- Version mapping centralized in build.gradle.kts for easy maintenance
+- No shared single JAR - each version gets its own artifact for reliability
+
+### Build Commands
+```bash
+# Build for all versions at once
+./gradlew buildAll
+
+# Build for 1.21.11 (default)
+./gradlew build
+
+# Build for 1.21.4
+./gradlew build -PmcVersion=1.21.4
+```
 
 ---
 

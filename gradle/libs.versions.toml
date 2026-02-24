@@ -2,6 +2,7 @@
 mod-version = "0.2.0"
 
 # Fabric (https://fabricmc.net/develop)
+# Default build target - override with -PmcVersion=1.21.4 for 1.21.4 build
 minecraft = "1.21.11"
 yarn-mappings = "1.21.11+build.3"
 fabric-loader = "0.18.2"
@@ -10,7 +11,7 @@ fabric-loader = "0.18.2"
 loom = "1.14-SNAPSHOT"
 
 # Meteor (https://github.com/MeteorDevelopment/meteor-client/)
-# Supports both 1.21.4 and 1.21.11 - building with 1.21.11 libs
+# Version mapping handled in build.gradle.kts for multi-version support
 meteor = "1.21.11-SNAPSHOT"
 
 # Mods
