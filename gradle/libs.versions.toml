@@ -1,5 +1,5 @@
 [versions]
-mod-version = "0.1.0"
+mod-version = "0.2.0"
 
 # Fabric (https://fabricmc.net/develop)
 minecraft = "1.21.11"
@@ -10,6 +10,7 @@ fabric-loader = "0.18.2"
 loom = "1.14-SNAPSHOT"
 
 # Meteor (https://github.com/MeteorDevelopment/meteor-client/)
+# Supports both 1.21.4 and 1.21.11 - building with 1.21.11 libs
 meteor = "1.21.11-SNAPSHOT"
 
 # Mods
