@@ -1,6 +1,7 @@
 package com.softcore.addon;
 
 import com.softcore.addon.commands.CommandExample;
+import com.softcore.addon.commands.ReplayPacketCommand;
 import com.softcore.addon.hud.HudExample;
 import com.softcore.addon.modules.*;
 import com.mojang.logging.LogUtils;
@@ -36,9 +37,11 @@ public class SoftcoreAddon extends MeteorAddon {
         Modules.get().add(new ShiftClickExploit());
         Modules.get().add(new ChestReopenHelper());
         Modules.get().add(new RaceConditionTester());
+        Modules.get().add(new PacketReplayHelper());
 
         // Commands
         Commands.add(new CommandExample());
+        Commands.add(new ReplayPacketCommand());
 
         // HUD
         Hud.get().register(HudExample.INFO);
