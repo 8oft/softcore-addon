@@ -1,7 +1,6 @@
 package com.softcore.addon;
 
 import com.softcore.addon.commands.CommandExample;
-import com.softcore.addon.commands.ReplayPacketCommand;
 import com.softcore.addon.hud.HudExample;
 import com.softcore.addon.modules.*;
 import com.mojang.logging.LogUtils;
@@ -27,21 +26,24 @@ public class SoftcoreAddon extends MeteorAddon {
         Modules.get().add(new ModuleExample());
         Modules.get().add(new InventoryCloseCanceller());
         Modules.get().add(new AutoDisconnect());
-        Modules.get().add(new ItemDupeHelper());
         Modules.get().add(new PacketLogger());
-        Modules.get().add(new DeathChestDebugger());
-        
-        // Death Chest Exploit Modules
-        Modules.get().add(new InventoryCloseDelayer());
         Modules.get().add(new HotbarSwapExploit());
-        Modules.get().add(new ShiftClickExploit());
-        Modules.get().add(new ChestReopenHelper());
-        Modules.get().add(new RaceConditionTester());
-        Modules.get().add(new PacketReplayHelper());
+        
+        // Meteor Rejects inspired modules
+        Modules.get().add(new AutoLogin());
+        Modules.get().add(new AntiCrash());
+        Modules.get().add(new Kick());
+        
+        // DupersUnited inspired modules
+        Modules.get().add(new PacketDelay());
+        Modules.get().add(new BundleDupe());
+        Modules.get().add(new GuiMacros());
+        
+        // Custom modules
+        Modules.get().add(new SoftClose());
 
         // Commands
         Commands.add(new CommandExample());
-        Commands.add(new ReplayPacketCommand());
 
         // HUD
         Hud.get().register(HudExample.INFO);

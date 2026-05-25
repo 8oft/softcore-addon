@@ -35,4 +35,5 @@ run/
 # testing stuff
 
 plugins-to-test/
+samples/
 NOTES.md

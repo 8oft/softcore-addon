@@ -82,6 +82,13 @@ public class AutoDisconnect extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post event) {
+        // Check for manual trigger
+        if (useManualTrigger.get() && !shouldDisconnect) {
+            scheduleDisconnect();
+            useManualTrigger.set(false); // Auto-disable after triggering
+            return;
+        }
+        
         if (shouldDisconnect) {
             if (disconnectTimer > 0) {
                 disconnectTimer--;

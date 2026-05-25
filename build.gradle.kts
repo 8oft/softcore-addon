@@ -17,9 +17,17 @@ val versionMap = mapOf(
         "yarn" to "1.21.4+build.2",
         "meteor" to "1.21.4-SNAPSHOT"
     ),
+    "1.21.10" to mapOf(
+        "yarn" to "1.21.10+build.3",
+        "meteor" to "1.21.10-SNAPSHOT"
+    ),
     "1.21.11" to mapOf(
         "yarn" to "1.21.11+build.3",
         "meteor" to "1.21.11-SNAPSHOT"
+    ),
+    "26.1.2" to mapOf(
+        "yarn" to "26.1.2+build.3",
+        "meteor" to "26.1.2-SNAPSHOT"
     )
 )
 

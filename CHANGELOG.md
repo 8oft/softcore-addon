@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.0.0] - 2025-05-25 - Major Release
+
+### Added
+- **Major Release**: Complete rewrite with new module architecture
+- **AutoLogin** - Automatic server login with smart command detection
+- **AntiCrash** - Client crash prevention from malicious packets
+- **Kick Module** - Multiple kick methods (Disconnect, Invalid Position, Self Hurt, Invalid Chat)
+- **PacketDelay** - Packet queuing system for exploits
+- **BundleDupe** - Bundle-based duplication exploit
+- **GuiMacros** - GUI-restricted macro system (inventory/chest only)
+- **SoftClose** - Instant GUI closing for containers
+- **AttributeSwap** - Combat utility for shield breaking
+- **Comprehensive GUI Support** - Support for all major container types
+
+### Enhanced
+- **Multi-Version Support** - Added support for Minecraft 1.21.4, 1.21.10, and 1.21.11
+- **Module Categories** - Organized modules into Utility, Combat & Exploits, and Settings categories
+- **Configuration System** - Improved settings with proper validation
+- **Error Handling** - Comprehensive error handling and user feedback
+- **Performance** - Optimized packet handling and module performance
+
+### Fixed
+- **Lint Warnings** - Resolved all unused imports and variables
+- **Compilation Issues** - Fixed all build errors and warnings
+- **Module Registration** - Proper module registration and initialization
+- **Packet Compatibility** - Updated packet handling for current Minecraft versions
+
+### Technical
+- **Code Quality** - Clean code practices with proper documentation
+- **Build System** - Updated Gradle configuration for multi-version builds
+- **Dependencies** - Updated to latest compatible dependencies
+- **API Compatibility** - Ensured compatibility with latest Meteor Client API
+
+---
+
 ## [0.2.0] - 2026-02-24
 
 ### Added
