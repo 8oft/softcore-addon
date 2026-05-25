@@ -14,18 +14,10 @@ A comprehensive Meteor Client addon featuring utility modules, exploits, and qua
 - **PacketDelay** - Delays selected packets for various exploits
 - **GuiMacros** - Execute macros in inventory/chest GUIs only
 - **SoftClose** - Instantly close chest/inventory GUIs
-- **AutoDisconnect** - Automatic disconnection on various conditions
-- **PacketLogger** - Monitor and log network packets
 
-### ⚔️ Combat & Exploits
+### ⚔️ Exploits
 - **Kick** - Multiple methods to kick yourself from servers
-- **HotbarSwapExploit** - Hotbar swapping exploit
 - **BundleDupe** - Bundle-based duplication exploit
-- **AttributeSwap** - Automatically swap to axe to break shields
-
-### 🛠️ Settings & Management
-- **InventoryCloseCanceller** - Prevent inventory from closing
-- **ModuleExample** - Example module for developers
 
 ## Installation
 

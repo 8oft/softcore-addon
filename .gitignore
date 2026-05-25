@@ -37,3 +37,7 @@ run/
 plugins-to-test/
 samples/
 NOTES.md
+
+# release builds
+
+release/

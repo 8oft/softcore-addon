@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.0.0] - 2025-05-25 - Major Release
+## [1.0.0] - 2026-05-25 - Major Release
 
 ### Added
 - **Major Release**: Complete rewrite with new module architecture
@@ -11,7 +11,6 @@
 - **BundleDupe** - Bundle-based duplication exploit
 - **GuiMacros** - GUI-restricted macro system (inventory/chest only)
 - **SoftClose** - Instant GUI closing for containers
-- **AttributeSwap** - Combat utility for shield breaking
 - **Comprehensive GUI Support** - Support for all major container types
 
 ### Enhanced
