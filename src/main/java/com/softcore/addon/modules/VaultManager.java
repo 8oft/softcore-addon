@@ -1,6 +1,7 @@
 package com.softcore.addon.modules;
 
 import com.softcore.addon.SoftcoreAddon;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
@@ -9,8 +10,12 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
 import net.minecraft.screen.slot.SlotActionType;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -84,28 +89,63 @@ public class VaultManager extends Module {
     }
 
     private void quickMoveSlot(GenericContainerScreen screen, int slotId) {
-        var handler = screen.getScreenHandler();
         int repeats = packetRepeat.get();
         for (int i = 0; i < repeats; i++) {
-            mc.interactionManager.clickSlot(
-                handler.syncId,
-                slotId,
-                0,
-                SlotActionType.QUICK_MOVE,
-                mc.player
-            );
+            sendRawClickSlot(screen, slotId, SlotActionType.QUICK_MOVE);
         }
     }
 
     private void clickSlot(GenericContainerScreen screen, int slotId) {
+        sendRawClickSlot(screen, slotId, SlotActionType.PICKUP);
+    }
+
+    private void sendRawClickSlot(GenericContainerScreen screen, int slotId, SlotActionType actionType) {
         var handler = screen.getScreenHandler();
-        mc.interactionManager.clickSlot(
-            handler.syncId,
-            slotId,
-            0,
-            SlotActionType.PICKUP,
-            mc.player
-        );
+        if (mc.getNetworkHandler() == null) return;
+
+        try {
+            @SuppressWarnings("unchecked")
+            Constructor<Object> ctor = (Constructor<Object>) ClickSlotC2SPacket.class.getConstructors()[0];
+            Class<?>[] paramTypes = ctor.getParameterTypes();
+            Object[] args = new Object[paramTypes.length];
+
+            for (int i = 0; i < paramTypes.length; i++) {
+                Class<?> type = paramTypes[i];
+                if (type == int.class) {
+                    args[i] = (i == 0) ? handler.syncId : handler.getRevision();
+                } else if (type == short.class) {
+                    args[i] = (short) slotId;
+                } else if (type == byte.class) {
+                    args[i] = (byte) 0;
+                } else if (type.isEnum()) {
+                    args[i] = actionType;
+                } else if (type.getName().contains("Int2ObjectMap") || type.getName().contains("Int2ObjectOpenHashMap")) {
+                    Int2ObjectOpenHashMap<Object> map = new Int2ObjectOpenHashMap<>();
+                    Object empty = getEmptyStack(paramTypes[paramTypes.length - 1]);
+                    map.put(slotId, empty);
+                    args[i] = map;
+                } else {
+                    args[i] = getEmptyStack(type);
+                }
+            }
+
+            Object packet = ctor.newInstance(args);
+            mc.getNetworkHandler().sendPacket((Packet<?>) packet);
+        } catch (Exception e) {
+            error("Failed to send click slot packet: " + e.getMessage());
+        }
+    }
+
+    private Object getEmptyStack(Class<?> stackType) throws Exception {
+        if (stackType == ItemStack.class) {
+            return ItemStack.EMPTY;
+        }
+        Class<?> itemStackHashClass = Class.forName("net.minecraft.screen.sync.ItemStackHash", false, getClass().getClassLoader());
+        if (stackType == itemStackHashClass) {
+            Field emptyField = itemStackHashClass.getField("EMPTY");
+            return emptyField.get(null);
+        }
+        return ItemStack.EMPTY;
     }
 
     @Override
