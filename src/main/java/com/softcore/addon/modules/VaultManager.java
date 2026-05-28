@@ -172,35 +172,39 @@ public class VaultManager extends Module {
             if (channelField != null) {
                 channelField.setAccessible(true);
                 Object channel = channelField.get(connection);
-                // channel.write(packet) for each, then channel.flush() once
-                java.lang.reflect.Method write = channel.getClass().getMethod("write", Object.class);
-                java.lang.reflect.Method flush = channel.getClass().getMethod("flush");
-                for (Packet<?> packet : packets) {
-                    write.invoke(channel, packet);
+                if (channel != null) {
+                    java.lang.reflect.Method write = channel.getClass().getMethod("write", Object.class);
+                    java.lang.reflect.Method flush = channel.getClass().getMethod("flush");
+                    for (Packet<?> packet : packets) {
+                        write.invoke(channel, packet);
+                    }
+                    flush.invoke(channel);
+                    info("Sent " + packets.size() + " packets via channel batch");
+                    return;
                 }
-                flush.invoke(channel);
-                return;
             }
+            info("Channel field not found, falling back to sendPacket");
         } catch (Exception e) {
-            // Fallback to individual sends
+            info("Channel batch failed: " + e.getClass().getSimpleName() + " - " + e.getMessage());
         }
 
-        // Fallback: send individually (still all within same tick, just not batched at Netty level)
+        // Fallback: send individually
         for (Packet<?> packet : packets) {
             mc.getNetworkHandler().sendPacket(packet);
         }
+        info("Sent " + packets.size() + " packets individually (fallback)");
     }
 
     private Field findChannelField(Object connection) {
-        for (Field f : connection.getClass().getDeclaredFields()) {
-            if (f.getType().getName().contains("Channel") || f.getType().getName().contains("channel")) {
-                return f;
+        Class<?> clazz = connection.getClass();
+        while (clazz != null) {
+            for (Field f : clazz.getDeclaredFields()) {
+                String typeName = f.getType().getName();
+                if (typeName.contains("Channel") || typeName.contains("channel") || typeName.startsWith("io.netty")) {
+                    return f;
+                }
             }
-        }
-        for (Field f : connection.getClass().getFields()) {
-            if (f.getType().getName().contains("Channel") || f.getType().getName().contains("channel")) {
-                return f;
-            }
+            clazz = clazz.getSuperclass();
         }
         return null;
     }
