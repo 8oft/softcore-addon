@@ -2,6 +2,9 @@ package com.softcore.addon.modules;
 
 import com.softcore.addon.SoftcoreAddon;
 import meteordevelopment.meteorclient.events.world.TickEvent;
+import meteordevelopment.meteorclient.settings.IntSetting;
+import meteordevelopment.meteorclient.settings.Setting;
+import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
@@ -12,6 +15,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class VaultManager extends Module {
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
+
+    private final Setting<Integer> packetRepeat = sgGeneral.add(new IntSetting.Builder()
+        .name("packet-repeat")
+        .description("How many times to send each QUICK_MOVE packet per slot.")
+        .defaultValue(5)
+        .min(1)
+        .max(67)
+        .build()
+    );
+
     private String lastTitle = "";
     private Set<String> lootedTitles = new HashSet<>();
 
@@ -93,13 +107,16 @@ public class VaultManager extends Module {
         if (mc.interactionManager == null || mc.player == null) return;
 
         var handler = screen.getScreenHandler();
-        mc.interactionManager.clickSlot(
-            handler.syncId,
-            slotId,
-            0,
-            SlotActionType.QUICK_MOVE,
-            mc.player
-        );
+        int repeats = packetRepeat.get();
+        for (int i = 0; i < repeats; i++) {
+            mc.interactionManager.clickSlot(
+                handler.syncId,
+                slotId,
+                0,
+                SlotActionType.QUICK_MOVE,
+                mc.player
+            );
+        }
     }
 
     private void clickSlot(GenericContainerScreen screen, int slotId) {
