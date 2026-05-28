@@ -35,7 +35,7 @@ public class VaultManager extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post event) {
-        if (!VaultScreenMixin.btnVisible) return;
+        if (!VaultScreenMixin.isBtnVisible()) return;
         if (!(mc.currentScreen instanceof GenericContainerScreen screen)) return;
         if (!screen.getTitle().getString().toLowerCase().contains("vault")) return;
 
@@ -45,8 +45,8 @@ public class VaultManager extends Module {
             double mouseX = mc.mouse.getX();
             double mouseY = mc.mouse.getY();
 
-            int btnX = VaultScreenMixin.lastBtnX;
-            int btnY = VaultScreenMixin.lastBtnY;
+            int btnX = VaultScreenMixin.getLastBtnX();
+            int btnY = VaultScreenMixin.getLastBtnY();
 
             if (mouseX >= btnX && mouseX <= btnX + BTN_W &&
                 mouseY >= btnY && mouseY <= btnY + BTN_H) {

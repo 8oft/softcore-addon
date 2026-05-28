@@ -20,9 +20,13 @@ public abstract class VaultScreenMixin {
     private static final int BTN_W = 40;
     private static final int BTN_H = 12;
 
-    public static int lastBtnX = 0;
-    public static int lastBtnY = 0;
-    public static boolean btnVisible = false;
+    private static int lastBtnX = 0;
+    private static int lastBtnY = 0;
+    private static boolean btnVisible = false;
+
+    public static int getLastBtnX() { return lastBtnX; }
+    public static int getLastBtnY() { return lastBtnY; }
+    public static boolean isBtnVisible() { return btnVisible; }
 
     @Inject(method = "render", at = @At("TAIL"))
     private void onRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
