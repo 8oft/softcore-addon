@@ -4,13 +4,24 @@
 
 ### Added
 - **Vaults Plugin Dupe** - Automatically loot items from Vault plugin GUIs
-  - Auto quick-moves all items from vault pages to player inventory
-  - Auto-clicks next/previous page navigation buttons
-  - Smart detection: only activates on GUIs with "Vault" in title
-  - Skips navigation arrow slots (next page slot 53, previous page slot 45)
-  - Configurable delays for click speed and page switching
+  - Toggle-on module: activate once, auto-loots all vault pages
+  - Sends all `QUICK_MOVE` + `PICKUP` packets in same client tick
+  - Configurable packet repeat per slot (1-67, default 5)
+  - Smart detection: only activates on GUIs with "vault" in title
+  - Skips navigation arrow slots (next page, previous page)
+  - Reflection-based `ClickSlotC2SPacket` construction for multi-version compatibility
+  - Netty channel batching: all packets queued then flushed at once
+
+### Enhanced
+- **Multi-Version Packet Compatibility** - Reflection handles both `ItemStack` and `ItemStackHash`/`HashedStack` across Minecraft 1.21.4, 1.21.10, and 1.21.11
+- **Same-Tick Execution** - All inventory action packets sent instantly without delay
+- **Reflection Caching** - Constructor and empty stack lookups cached per session
+- **Error Logging** - Detailed exception output for debugging packet failures
 
 ### Fixed
+- **Runtime Reflection** - Field name remapping handled correctly for obfuscated Fabric environments
+- **Packet Batching** - Fixed slow one-by-one sending by using `channel.write()` + single `flush()`
+- **Empty Stack Type Mismatch** - Correctly resolves `ItemStack` vs `HashedStack` at runtime
 - **Build Script**: Updated `build-release.bat` for new version numbering
 
 ---
