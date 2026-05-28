@@ -10,6 +10,7 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
 import net.minecraft.screen.slot.SlotActionType;
@@ -17,7 +18,9 @@ import net.minecraft.screen.slot.SlotActionType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class VaultManager extends Module {
@@ -34,6 +37,12 @@ public class VaultManager extends Module {
 
     private String lastTitle = "";
     private Set<String> lootedTitles = new HashSet<>();
+
+    // Cached reflection data to avoid repeated lookups
+    private static Constructor<?> packetCtor;
+    private static Class<?>[] packetParamTypes;
+    private static Object emptyStackValue;
+    private static boolean reflectionInit = false;
 
     public VaultManager() {
         super(SoftcoreAddon.CATEGORY, "vaults-plugin-dupe", "Vaults Plugin Dupe - Toggle on, open vault, auto-loot.");
@@ -67,20 +76,34 @@ public class VaultManager extends Module {
 
         info("Looting Vault: " + title);
 
+        initReflection();
+
+        // Build ALL packets first
+        List<Packet<?>> packets = new ArrayList<>();
         int lootedCount = 0;
         for (int slot = 0; slot < slots; slot++) {
             if (slot == nextSlot || slot == prevSlot) continue;
 
             ItemStack stack = screen.getScreenHandler().getSlot(slot).getStack();
             if (!stack.isEmpty()) {
-                quickMoveSlot(screen, slot);
+                for (int i = 0; i < packetRepeat.get(); i++) {
+                    Packet<?> p = buildRawPacket(screen, slot, SlotActionType.QUICK_MOVE);
+                    if (p != null) packets.add(p);
+                }
                 lootedCount++;
             }
         }
-        info("Quick-moved " + lootedCount + " items");
+        info("Quick-moved " + lootedCount + " items (" + packets.size() + " packets)");
 
         if (hasNextArrow) {
-            clickSlot(screen, nextSlot);
+            Packet<?> p = buildRawPacket(screen, nextSlot, SlotActionType.PICKUP);
+            if (p != null) packets.add(p);
+        }
+
+        // Send all packets in a single flush
+        sendPacketBatch(packets);
+
+        if (hasNextArrow) {
             lastTitle = "";
             info("Going to next page...");
         } else {
@@ -89,29 +112,33 @@ public class VaultManager extends Module {
         }
     }
 
-    private void quickMoveSlot(GenericContainerScreen screen, int slotId) {
-        int repeats = packetRepeat.get();
-        for (int i = 0; i < repeats; i++) {
-            sendRawClickSlot(screen, slotId, SlotActionType.QUICK_MOVE);
+    private void initReflection() {
+        if (reflectionInit) return;
+        reflectionInit = true;
+        try {
+            packetCtor = ClickSlotC2SPacket.class.getConstructors()[0];
+            packetParamTypes = packetCtor.getParameterTypes();
+            // Find the empty stack type (last non-primitive, non-enum, non-map param)
+            for (int i = packetParamTypes.length - 1; i >= 0; i--) {
+                Class<?> type = packetParamTypes[i];
+                if (!type.isPrimitive() && !type.isEnum() && !type.getName().contains("Int2Object")) {
+                    emptyStackValue = getEmptyStack(type);
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            error("Failed to init packet reflection: " + e.getMessage());
         }
     }
 
-    private void clickSlot(GenericContainerScreen screen, int slotId) {
-        sendRawClickSlot(screen, slotId, SlotActionType.PICKUP);
-    }
-
-    private void sendRawClickSlot(GenericContainerScreen screen, int slotId, SlotActionType actionType) {
+    private Packet<?> buildRawPacket(GenericContainerScreen screen, int slotId, SlotActionType actionType) {
         var handler = screen.getScreenHandler();
-        if (mc.getNetworkHandler() == null) return;
+        if (packetCtor == null || mc.getNetworkHandler() == null) return null;
 
         try {
-            @SuppressWarnings("unchecked")
-            Constructor<Object> ctor = (Constructor<Object>) ClickSlotC2SPacket.class.getConstructors()[0];
-            Class<?>[] paramTypes = ctor.getParameterTypes();
-            Object[] args = new Object[paramTypes.length];
-
-            for (int i = 0; i < paramTypes.length; i++) {
-                Class<?> type = paramTypes[i];
+            Object[] args = new Object[packetParamTypes.length];
+            for (int i = 0; i < packetParamTypes.length; i++) {
+                Class<?> type = packetParamTypes[i];
                 if (type == int.class) {
                     args[i] = (i == 0) ? handler.syncId : handler.getRevision();
                 } else if (type == short.class) {
@@ -122,20 +149,60 @@ public class VaultManager extends Module {
                     args[i] = actionType;
                 } else if (type.getName().contains("Int2ObjectMap") || type.getName().contains("Int2ObjectOpenHashMap")) {
                     Int2ObjectOpenHashMap<Object> map = new Int2ObjectOpenHashMap<>();
-                    Object empty = getEmptyStack(paramTypes[paramTypes.length - 1]);
-                    map.put(slotId, empty);
+                    map.put(slotId, emptyStackValue);
                     args[i] = map;
                 } else {
-                    args[i] = getEmptyStack(type);
+                    args[i] = emptyStackValue;
                 }
             }
-
-            Object packet = ctor.newInstance(args);
-            mc.getNetworkHandler().sendPacket((Packet<?>) packet);
+            return (Packet<?>) packetCtor.newInstance(args);
         } catch (Exception e) {
-            error("Failed to send click slot packet: " + e.getClass().getSimpleName() + " - " + e.getMessage());
-            e.printStackTrace();
+            error("Failed to build packet: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+            return null;
         }
+    }
+
+    private void sendPacketBatch(List<Packet<?>> packets) {
+        if (packets.isEmpty()) return;
+
+        // Try to batch via channel.write + single flush for true same-tick sending
+        try {
+            ClientConnection connection = mc.getNetworkHandler().getConnection();
+            Field channelField = findChannelField(connection);
+            if (channelField != null) {
+                channelField.setAccessible(true);
+                Object channel = channelField.get(connection);
+                // channel.write(packet) for each, then channel.flush() once
+                java.lang.reflect.Method write = channel.getClass().getMethod("write", Object.class);
+                java.lang.reflect.Method flush = channel.getClass().getMethod("flush");
+                for (Packet<?> packet : packets) {
+                    write.invoke(channel, packet);
+                }
+                flush.invoke(channel);
+                return;
+            }
+        } catch (Exception e) {
+            // Fallback to individual sends
+        }
+
+        // Fallback: send individually (still all within same tick, just not batched at Netty level)
+        for (Packet<?> packet : packets) {
+            mc.getNetworkHandler().sendPacket(packet);
+        }
+    }
+
+    private Field findChannelField(Object connection) {
+        for (Field f : connection.getClass().getDeclaredFields()) {
+            if (f.getType().getName().contains("Channel") || f.getType().getName().contains("channel")) {
+                return f;
+            }
+        }
+        for (Field f : connection.getClass().getFields()) {
+            if (f.getType().getName().contains("Channel") || f.getType().getName().contains("channel")) {
+                return f;
+            }
+        }
+        return null;
     }
 
     private Object getEmptyStack(Class<?> stackType) {
@@ -143,7 +210,6 @@ public class VaultManager extends Module {
             return ItemStack.EMPTY;
         }
         try {
-            // Fabric remaps field names at runtime, so find by type+static instead of name
             for (Field f : stackType.getFields()) {
                 if (Modifier.isStatic(f.getModifiers()) && f.getType() == stackType) {
                     return f.get(null);
