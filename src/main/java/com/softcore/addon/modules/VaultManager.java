@@ -1,7 +1,6 @@
 package com.softcore.addon.modules;
 
 import com.softcore.addon.SoftcoreAddon;
-import com.softcore.addon.util.VaultButtonState;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
@@ -11,7 +10,9 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.SlotActionType;
-import org.lwjgl.glfw.GLFW;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class VaultManager extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -25,47 +26,38 @@ public class VaultManager extends Module {
         .build()
     );
 
-    private boolean wasMouseDown = false;
-    private static final int BTN_W = 40;
-    private static final int BTN_H = 12;
+    private String lastTitle = "";
+    private Set<String> lootedTitles = new HashSet<>();
 
     public VaultManager() {
-        super(SoftcoreAddon.CATEGORY, "vaults-plugin-dupe", "Vaults Plugin Dupe - Click the LOOT button in Vault GUIs.");
+        super(SoftcoreAddon.CATEGORY, "vaults-plugin-dupe", "Vaults Plugin Dupe - Toggle on, open vault, auto-loot.");
+    }
+
+    @Override
+    public void onActivate() {
+        lastTitle = "";
+        lootedTitles.clear();
+        info("Vaults Plugin Dupe activated. Open a Vault GUI to auto-loot.");
     }
 
     @EventHandler
     private void onTick(TickEvent.Post event) {
-        if (!VaultButtonState.btnVisible) return;
         if (!(mc.currentScreen instanceof GenericContainerScreen screen)) return;
-        if (!screen.getTitle().getString().toLowerCase().contains("vault")) return;
-
-        boolean isMouseDown = GLFW.glfwGetMouseButton(mc.getWindow().getHandle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
-
-        if (isMouseDown && !wasMouseDown) {
-            double mouseX = mc.mouse.getX();
-            double mouseY = mc.mouse.getY();
-
-            int btnX = VaultButtonState.lastBtnX;
-            int btnY = VaultButtonState.lastBtnY;
-
-            if (mouseX >= btnX && mouseX <= btnX + BTN_W &&
-                mouseY >= btnY && mouseY <= btnY + BTN_H) {
-                lootScreen(screen);
-            }
-        }
-
-        wasMouseDown = isMouseDown;
-    }
-
-    public void lootScreen(GenericContainerScreen screen) {
-        if (mc.interactionManager == null || mc.player == null) return;
 
         String title = screen.getTitle().getString();
+        if (!title.toLowerCase().contains("vault")) return;
+
         int slots = screen.getScreenHandler().getRows() * 9;
         int nextSlot = slots - 1;
         int prevSlot = slots - 9;
 
         boolean hasNextArrow = !screen.getScreenHandler().getSlot(nextSlot).getStack().isEmpty();
+
+        if (title.equals(lastTitle)) return;
+        if (lootedTitles.contains(title)) return;
+
+        lastTitle = title;
+        lootedTitles.add(title);
 
         info("Looting Vault: " + title);
 
@@ -83,9 +75,11 @@ public class VaultManager extends Module {
 
         if (hasNextArrow) {
             clickSlot(screen, nextSlot);
+            lastTitle = "";
             info("Going to next page...");
         } else {
             info("All vault pages looted.");
+            toggle();
         }
     }
 
@@ -116,6 +110,6 @@ public class VaultManager extends Module {
 
     @Override
     public String getInfoString() {
-        return "Click LOOT button";
+        return isActive() ? "Active" : "Inactive";
     }
 }
