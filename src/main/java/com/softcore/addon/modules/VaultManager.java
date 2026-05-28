@@ -2,9 +2,6 @@ package com.softcore.addon.modules;
 
 import com.softcore.addon.SoftcoreAddon;
 import meteordevelopment.meteorclient.events.world.TickEvent;
-import meteordevelopment.meteorclient.settings.BoolSetting;
-import meteordevelopment.meteorclient.settings.Setting;
-import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
@@ -15,22 +12,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class VaultManager extends Module {
-    private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
-    private final Setting<Boolean> autoNextPage = sgGeneral.add(new BoolSetting.Builder()
-        .name("auto-next-page")
-        .description("Automatically go to the next page after looting.")
-        .defaultValue(true)
-        .build()
-    );
-
-    private final Setting<Boolean> autoPrevPage = sgGeneral.add(new BoolSetting.Builder()
-        .name("auto-prev-page")
-        .description("Automatically go to the previous page after looting.")
-        .defaultValue(false)
-        .build()
-    );
-
     private String lastTitle = "";
     private Set<String> lootedTitles = new HashSet<>();
 
@@ -95,18 +76,10 @@ public class VaultManager extends Module {
         }
         info("Quick-moved " + lootedCount + " items on same tick");
 
-        // ---- SAME TICK: Page navigation ----
-        if (autoNextPage.get() && hasNextArrow) {
+        // ---- SAME TICK: Always go to next page if arrow exists ----
+        if (hasNextArrow) {
             info("Clicking next page (slot " + nextSlot + ") on same tick");
             clickSlot(screen, nextSlot);
-            // Reset lastTitle so next page gets processed
-            lastTitle = "";
-            return;
-        }
-
-        if (autoPrevPage.get() && hasPrevArrow) {
-            info("Clicking previous page (slot " + prevSlot + ") on same tick");
-            clickSlot(screen, prevSlot);
             lastTitle = "";
             return;
         }
