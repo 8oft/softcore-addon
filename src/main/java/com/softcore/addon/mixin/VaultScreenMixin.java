@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(HandledScreen.class)
 public abstract class VaultScreenMixin {
@@ -21,8 +20,14 @@ public abstract class VaultScreenMixin {
     private static final int BTN_W = 40;
     private static final int BTN_H = 12;
 
+    public static int lastBtnX = 0;
+    public static int lastBtnY = 0;
+    public static boolean btnVisible = false;
+
     @Inject(method = "render", at = @At("TAIL"))
     private void onRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+        btnVisible = false;
+
         if (!((Object) this instanceof GenericContainerScreen screen)) return;
 
         VaultManager vm = Modules.get().get(VaultManager.class);
@@ -33,6 +38,9 @@ public abstract class VaultScreenMixin {
 
         int btnX = this.x + 5;
         int btnY = this.y - BTN_H - 2;
+        lastBtnX = btnX;
+        lastBtnY = btnY;
+        btnVisible = true;
 
         boolean hovered = mouseX >= btnX && mouseX <= btnX + BTN_W &&
                           mouseY >= btnY && mouseY <= btnY + BTN_H;
@@ -40,7 +48,6 @@ public abstract class VaultScreenMixin {
         int bgColor = hovered ? 0xFF33CC33 : 0xFF008800;
         context.fill(btnX, btnY, btnX + BTN_W, btnY + BTN_H, bgColor);
 
-        // Draw border manually (top, bottom, left, right)
         int border = 0xFFFFFFFF;
         context.fill(btnX, btnY, btnX + BTN_W, btnY + 1, border);
         context.fill(btnX, btnY + BTN_H - 1, btnX + BTN_W, btnY + BTN_H, border);
@@ -53,24 +60,5 @@ public abstract class VaultScreenMixin {
         int textX = btnX + (BTN_W - textWidth) / 2;
         int textY = btnY + 2;
         context.drawText(textRenderer, text, textX, textY, 0xFFFFFFFF, true);
-    }
-
-    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-    private void onMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
-        if (!((Object) this instanceof GenericContainerScreen screen)) return;
-
-        VaultManager vm = Modules.get().get(VaultManager.class);
-        if (vm == null || !vm.isActive()) return;
-
-        if (!screen.getTitle().getString().toLowerCase().contains("vault")) return;
-
-        int btnX = this.x + 5;
-        int btnY = this.y - BTN_H - 2;
-
-        if (mouseX >= btnX && mouseX <= btnX + BTN_W &&
-            mouseY >= btnY && mouseY <= btnY + BTN_H) {
-            vm.lootScreen(screen);
-            cir.setReturnValue(true);
-        }
     }
 }

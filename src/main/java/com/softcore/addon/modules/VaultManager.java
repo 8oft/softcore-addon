@@ -1,13 +1,17 @@
 package com.softcore.addon.modules;
 
 import com.softcore.addon.SoftcoreAddon;
+import com.softcore.addon.mixin.VaultScreenMixin;
+import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Module;
+import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.SlotActionType;
+import org.lwjgl.glfw.GLFW;
 
 public class VaultManager extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -21,8 +25,36 @@ public class VaultManager extends Module {
         .build()
     );
 
+    private boolean wasMouseDown = false;
+    private static final int BTN_W = 40;
+    private static final int BTN_H = 12;
+
     public VaultManager() {
         super(SoftcoreAddon.CATEGORY, "vaults-plugin-dupe", "Vaults Plugin Dupe - Click the LOOT button in Vault GUIs.");
+    }
+
+    @EventHandler
+    private void onTick(TickEvent.Post event) {
+        if (!VaultScreenMixin.btnVisible) return;
+        if (!(mc.currentScreen instanceof GenericContainerScreen screen)) return;
+        if (!screen.getTitle().getString().toLowerCase().contains("vault")) return;
+
+        boolean isMouseDown = GLFW.glfwGetMouseButton(mc.getWindow().getHandle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
+
+        if (isMouseDown && !wasMouseDown) {
+            double mouseX = mc.mouse.getX();
+            double mouseY = mc.mouse.getY();
+
+            int btnX = VaultScreenMixin.lastBtnX;
+            int btnY = VaultScreenMixin.lastBtnY;
+
+            if (mouseX >= btnX && mouseX <= btnX + BTN_W &&
+                mouseY >= btnY && mouseY <= btnY + BTN_H) {
+                lootScreen(screen);
+            }
+        }
+
+        wasMouseDown = isMouseDown;
     }
 
     public void lootScreen(GenericContainerScreen screen) {
