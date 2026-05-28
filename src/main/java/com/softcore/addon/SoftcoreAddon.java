@@ -37,7 +37,6 @@ public class SoftcoreAddon extends MeteorAddon {
         // DupersUnited inspired modules
         Modules.get().add(new PacketDelay());
         Modules.get().add(new BundleDupe());
-        Modules.get().add(new GuiMacros());
         
         // Custom modules
         Modules.get().add(new SoftClose());
