@@ -3,7 +3,6 @@ package com.softcore.addon.modules;
 import com.softcore.addon.SoftcoreAddon;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.BoolSetting;
-import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Module;
@@ -12,8 +11,8 @@ import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.SlotActionType;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 public class VaultManager extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -32,31 +31,8 @@ public class VaultManager extends Module {
         .build()
     );
 
-    private final Setting<Integer> delay = sgGeneral.add(new IntSetting.Builder()
-        .name("delay")
-        .description("Delay between clicks in ticks.")
-        .defaultValue(1)
-        .min(0)
-        .max(20)
-        .build()
-    );
-
-    private final Setting<Integer> pageDelay = sgGeneral.add(new IntSetting.Builder()
-        .name("page-delay")
-        .description("Delay between page switches in ticks.")
-        .defaultValue(5)
-        .min(1)
-        .max(40)
-        .build()
-    );
-
-    private int tickCounter = 0;
-    private int currentSlot = 0;
-    private boolean isLooting = false;
-    private boolean waitingForPageSwitch = false;
-    private int pageSwitchCooldown = 0;
     private String lastTitle = "";
-    private Map<String, Boolean> lootedPages = new HashMap<>();
+    private Set<String> lootedTitles = new HashSet<>();
 
     public VaultManager() {
         super(SoftcoreAddon.CATEGORY, "vaults-plugin-dupe", "Vaults Plugin Dupe - Auto-loot items from the Vaults plugin.");
@@ -64,139 +40,84 @@ public class VaultManager extends Module {
 
     @Override
     public void onActivate() {
-        tickCounter = 0;
-        currentSlot = 0;
-        isLooting = false;
-        waitingForPageSwitch = false;
-        pageSwitchCooldown = 0;
         lastTitle = "";
-        lootedPages.clear();
+        lootedTitles.clear();
         info("Vaults Plugin Dupe activated. Open a Vault GUI to start looting.");
     }
 
     @Override
     public void onDeactivate() {
-        isLooting = false;
-        waitingForPageSwitch = false;
         info("Vaults Plugin Dupe deactivated.");
     }
 
     @EventHandler
     private void onTick(TickEvent.Post event) {
-        if (mc.currentScreen instanceof GenericContainerScreen screen) {
-            String title = screen.getTitle().getString();
+        if (!(mc.currentScreen instanceof GenericContainerScreen screen)) return;
 
-            // Check if this is a Vault GUI
-            if (!title.toLowerCase().contains("vault")) {
-                // Not a vault screen, reset state
-                if (isLooting) {
-                    isLooting = false;
-                    waitingForPageSwitch = false;
-                }
-                return;
-            }
+        String title = screen.getTitle().getString();
 
-            int rows = screen.getScreenHandler().getRows();
-            int slots = rows * 9;
-            int nextSlot = slots - 1;
-            int prevSlot = slots - 9;
+        // Only process Vault GUIs
+        if (!title.toLowerCase().contains("vault")) return;
 
-            // If we just switched pages, reset slot counter
-            if (!title.equals(lastTitle)) {
-                lastTitle = title;
-                currentSlot = 0;
-                isLooting = true;
-                waitingForPageSwitch = false;
-                pageSwitchCooldown = 0;
-                info("Detected Vault GUI: " + title + " (" + slots + " slots)");
-            }
+        int slots = screen.getScreenHandler().getRows() * 9;
+        int nextSlot = slots - 1;   // slot 53 for 54-slot
+        int prevSlot = slots - 9;   // slot 45 for 54-slot
 
-            // Handle page switch cooldown
-            if (waitingForPageSwitch) {
-                pageSwitchCooldown--;
-                if (pageSwitchCooldown <= 0) {
-                    waitingForPageSwitch = false;
-                    currentSlot = 0;
-                } else {
-                    return;
-                }
-            }
+        // Detect page by checking nav arrows
+        boolean hasNextArrow = !screen.getScreenHandler().getSlot(nextSlot).getStack().isEmpty();
+        boolean hasPrevArrow = !screen.getScreenHandler().getSlot(prevSlot).getStack().isEmpty();
 
-            // Main looting logic
-            if (isLooting) {
-                tickCounter++;
-                if (tickCounter < delay.get()) return;
-                tickCounter = 0;
+        int pageNum = 1;
+        if (hasPrevArrow) pageNum = 2; // or higher if we track state
+        if (hasNextArrow && hasPrevArrow) pageNum = 2; // middle page
 
-                // Find next slot to loot
-                while (currentSlot < slots) {
-                    // Skip navigation slots
-                    if (currentSlot == nextSlot || currentSlot == prevSlot) {
-                        currentSlot++;
-                        continue;
-                    }
+        // Skip if we already looted this exact title
+        if (title.equals(lastTitle)) return;
+        if (lootedTitles.contains(title)) return;
 
-                    // Check if slot has an item
-                    ItemStack stack = screen.getScreenHandler().getSlot(currentSlot).getStack();
-                    if (!stack.isEmpty()) {
-                        // Quick move this slot to inventory
-                        quickMoveSlot(screen, currentSlot);
-                        currentSlot++;
-                        return; // Wait for next tick
-                    }
+        lastTitle = title;
+        lootedTitles.add(title);
 
-                    currentSlot++;
-                }
+        info("Detected Vault: " + title + " (slots=" + slots + ", page=" + pageNum + ", next=" + hasNextArrow + ", prev=" + hasPrevArrow + ")");
 
-                // All items on this page have been looted
-                info("Page looted: " + title);
-                lootedPages.put(title, true);
+        // ---- SAME TICK: Loot all non-empty slots ----
+        int lootedCount = 0;
+        for (int slot = 0; slot < slots; slot++) {
+            // Skip nav slots
+            if (slot == nextSlot || slot == prevSlot) continue;
 
-                // Try to go to next page
-                if (autoNextPage.get()) {
-                    ItemStack nextArrow = screen.getScreenHandler().getSlot(nextSlot).getStack();
-                    if (!nextArrow.isEmpty()) {
-                        info("Going to next page...");
-                        clickSlot(screen, nextSlot);
-                        waitingForPageSwitch = true;
-                        pageSwitchCooldown = pageDelay.get();
-                        return;
-                    }
-                }
-
-                // Try to go to previous page
-                if (autoPrevPage.get()) {
-                    ItemStack prevArrow = screen.getScreenHandler().getSlot(prevSlot).getStack();
-                    if (!prevArrow.isEmpty()) {
-                        info("Going to previous page...");
-                        clickSlot(screen, prevSlot);
-                        waitingForPageSwitch = true;
-                        pageSwitchCooldown = pageDelay.get();
-                        return;
-                    }
-                }
-
-                // No more pages
-                info("All vault pages looted.");
-                toggle();
-            } else if (!lootedPages.containsKey(title)) {
-                // Start looting this vault
-                isLooting = true;
-                currentSlot = 0;
-                tickCounter = 0;
-                info("Starting to loot: " + title);
-            }
-        } else {
-            // Not in any GUI
-            if (isLooting) {
-                isLooting = false;
-                waitingForPageSwitch = false;
+            // Only quick-move if slot has items
+            ItemStack stack = screen.getScreenHandler().getSlot(slot).getStack();
+            if (!stack.isEmpty()) {
+                quickMoveSlot(screen, slot);
+                lootedCount++;
             }
         }
+        info("Quick-moved " + lootedCount + " items on same tick");
+
+        // ---- SAME TICK: Page navigation ----
+        if (autoNextPage.get() && hasNextArrow) {
+            info("Clicking next page (slot " + nextSlot + ") on same tick");
+            clickSlot(screen, nextSlot);
+            // Reset lastTitle so next page gets processed
+            lastTitle = "";
+            return;
+        }
+
+        if (autoPrevPage.get() && hasPrevArrow) {
+            info("Clicking previous page (slot " + prevSlot + ") on same tick");
+            clickSlot(screen, prevSlot);
+            lastTitle = "";
+            return;
+        }
+
+        // No more pages
+        info("All vault pages looted.");
+        toggle();
     }
 
     private void quickMoveSlot(GenericContainerScreen screen, int slotId) {
-        if (mc.interactionManager == null) return;
+        if (mc.interactionManager == null || mc.player == null) return;
 
         var handler = screen.getScreenHandler();
         mc.interactionManager.clickSlot(
@@ -209,7 +130,7 @@ public class VaultManager extends Module {
     }
 
     private void clickSlot(GenericContainerScreen screen, int slotId) {
-        if (mc.interactionManager == null) return;
+        if (mc.interactionManager == null || mc.player == null) return;
 
         var handler = screen.getScreenHandler();
         mc.interactionManager.clickSlot(
@@ -223,9 +144,6 @@ public class VaultManager extends Module {
 
     @Override
     public String getInfoString() {
-        if (isLooting) {
-            return "Looting slot " + currentSlot;
-        }
-        return "Idle";
+        return "Vaults Dupe";
     }
 }
