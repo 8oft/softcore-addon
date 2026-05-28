@@ -3,7 +3,8 @@
   "package": "com.softcore.addon.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "ExampleMixin"
+    "ExampleMixin",
+    "VaultScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
