@@ -1,7 +1,7 @@
 package com.softcore.addon.modules;
 
 import com.softcore.addon.SoftcoreAddon;
-import com.softcore.addon.mixin.VaultScreenMixin;
+import com.softcore.addon.util.VaultButtonState;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
@@ -35,7 +35,7 @@ public class VaultManager extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post event) {
-        if (!VaultScreenMixin.isBtnVisible()) return;
+        if (!VaultButtonState.btnVisible) return;
         if (!(mc.currentScreen instanceof GenericContainerScreen screen)) return;
         if (!screen.getTitle().getString().toLowerCase().contains("vault")) return;
 
@@ -45,8 +45,8 @@ public class VaultManager extends Module {
             double mouseX = mc.mouse.getX();
             double mouseY = mc.mouse.getY();
 
-            int btnX = VaultScreenMixin.getLastBtnX();
-            int btnY = VaultScreenMixin.getLastBtnY();
+            int btnX = VaultButtonState.lastBtnX;
+            int btnY = VaultButtonState.lastBtnY;
 
             if (mouseX >= btnX && mouseX <= btnX + BTN_W &&
                 mouseY >= btnY && mouseY <= btnY + BTN_H) {

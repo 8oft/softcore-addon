@@ -1,6 +1,7 @@
 package com.softcore.addon.mixin;
 
 import com.softcore.addon.modules.VaultManager;
+import com.softcore.addon.util.VaultButtonState;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -20,17 +21,9 @@ public abstract class VaultScreenMixin {
     private static final int BTN_W = 40;
     private static final int BTN_H = 12;
 
-    private static int lastBtnX = 0;
-    private static int lastBtnY = 0;
-    private static boolean btnVisible = false;
-
-    public static int getLastBtnX() { return lastBtnX; }
-    public static int getLastBtnY() { return lastBtnY; }
-    public static boolean isBtnVisible() { return btnVisible; }
-
     @Inject(method = "render", at = @At("TAIL"))
     private void onRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-        btnVisible = false;
+        VaultButtonState.btnVisible = false;
 
         if (!((Object) this instanceof GenericContainerScreen screen)) return;
 
@@ -42,9 +35,9 @@ public abstract class VaultScreenMixin {
 
         int btnX = this.x + 5;
         int btnY = this.y - BTN_H - 2;
-        lastBtnX = btnX;
-        lastBtnY = btnY;
-        btnVisible = true;
+        VaultButtonState.lastBtnX = btnX;
+        VaultButtonState.lastBtnY = btnY;
+        VaultButtonState.btnVisible = true;
 
         boolean hovered = mouseX >= btnX && mouseX <= btnX + BTN_W &&
                           mouseY >= btnY && mouseY <= btnY + BTN_H;
