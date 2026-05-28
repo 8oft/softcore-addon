@@ -16,6 +16,7 @@ import net.minecraft.screen.slot.SlotActionType;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -142,11 +143,22 @@ public class VaultManager extends Module {
             return ItemStack.EMPTY;
         }
         try {
-            Field emptyField = stackType.getField("EMPTY");
-            return emptyField.get(null);
+            // Fabric remaps field names at runtime, so find by type+static instead of name
+            for (Field f : stackType.getFields()) {
+                if (Modifier.isStatic(f.getModifiers()) && f.getType() == stackType) {
+                    return f.get(null);
+                }
+            }
+            for (Field f : stackType.getDeclaredFields()) {
+                if (Modifier.isStatic(f.getModifiers()) && f.getType() == stackType) {
+                    f.setAccessible(true);
+                    return f.get(null);
+                }
+            }
         } catch (Exception e) {
-            return ItemStack.EMPTY;
+            // ignore
         }
+        return ItemStack.EMPTY;
     }
 
     @Override
