@@ -3,7 +3,7 @@
 ## [1.0.1] - 2026-05-29 - Vault Manager Update
 
 ### Added
-- **VaultManager** - Automatically loot items from Vault plugin GUIs
+- **Vaults Plugin Dupe** - Automatically loot items from Vault plugin GUIs
   - Auto quick-moves all items from vault pages to player inventory
   - Auto-clicks next/previous page navigation buttons
   - Smart detection: only activates on GUIs with "Vault" in title

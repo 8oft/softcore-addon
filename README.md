@@ -15,8 +15,8 @@ A comprehensive Meteor Client addon featuring utility modules, exploits, and qua
 - **GuiMacros** - Execute macros in inventory/chest GUIs only
 - **SoftClose** - Instantly close chest/inventory GUIs
 
-### 🏛️ Vault Manager
-- **VaultManager** - Automatically loot items from Vault plugin GUIs
+### 🏛️ Vaults Plugin Dupe
+- **Vaults Plugin Dupe** - Automatically loot items from Vault plugin GUIs
 
 ### ⚔️ Exploits
 - **Kick** - Multiple methods to kick yourself from servers
@@ -68,7 +68,7 @@ All modules can be configured through the Meteor Client GUI:
 - **Comprehensive Support**: Supports all major container types
 - **Simple Usage**: Activate module to close current GUI
 
-### VaultManager
+### Vaults Plugin Dupe
 - **Auto Loot**: Automatically quick-moves all items from vault pages
 - **Page Navigation**: Auto-clicks next/previous page buttons
 - **Smart Detection**: Only activates on Vault plugin GUIs (title contains "Vault")

@@ -59,7 +59,7 @@ public class VaultManager extends Module {
     private Map<String, Boolean> lootedPages = new HashMap<>();
 
     public VaultManager() {
-        super(SoftcoreAddon.CATEGORY, "vault-manager", "Automatically loot items from Vault plugin GUIs.");
+        super(SoftcoreAddon.CATEGORY, "vaults-plugin-dupe", "Vaults Plugin Dupe - Auto-loot items from the Vaults plugin.");
     }
 
     @Override
@@ -71,14 +71,14 @@ public class VaultManager extends Module {
         pageSwitchCooldown = 0;
         lastTitle = "";
         lootedPages.clear();
-        info("VaultManager activated. Open a Vault GUI to start looting.");
+        info("Vaults Plugin Dupe activated. Open a Vault GUI to start looting.");
     }
 
     @Override
     public void onDeactivate() {
         isLooting = false;
         waitingForPageSwitch = false;
-        info("VaultManager deactivated.");
+        info("Vaults Plugin Dupe deactivated.");
     }
 
     @EventHandler
@@ -108,7 +108,7 @@ public class VaultManager extends Module {
                 isLooting = true;
                 waitingForPageSwitch = false;
                 pageSwitchCooldown = 0;
-                info("Detected Vault: " + title + " (" + slots + " slots)");
+                info("Detected Vault GUI: " + title + " (" + slots + " slots)");
             }
 
             // Handle page switch cooldown
@@ -177,7 +177,7 @@ public class VaultManager extends Module {
                 }
 
                 // No more pages
-                info("All pages looted.");
+                info("All vault pages looted.");
                 toggle();
             } else if (!lootedPages.containsKey(title)) {
                 // Start looting this vault
