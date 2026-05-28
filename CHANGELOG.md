@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.0.1] - 2026-05-29 - Vault Manager Update
+
+### Added
+- **VaultManager** - Automatically loot items from Vault plugin GUIs
+  - Auto quick-moves all items from vault pages to player inventory
+  - Auto-clicks next/previous page navigation buttons
+  - Smart detection: only activates on GUIs with "Vault" in title
+  - Skips navigation arrow slots (next page slot 53, previous page slot 45)
+  - Configurable delays for click speed and page switching
+
+### Fixed
+- **Build Script**: Updated `build-release.bat` for new version numbering
+
+---
+
 ## [1.0.0] - 2026-05-25 - Major Release
 
 ### Added

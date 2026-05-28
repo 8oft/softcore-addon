@@ -2,7 +2,7 @@
 
 A comprehensive Meteor Client addon featuring utility modules, exploits, and quality-of-life improvements.
 
-**Version**: 1.0.0  
+**Version**: 1.0.1  
 **Minecraft**: 1.21.4, 1.21.10, 1.21.11  
 **Meteor Client**: Latest snapshot
 
@@ -14,6 +14,9 @@ A comprehensive Meteor Client addon featuring utility modules, exploits, and qua
 - **PacketDelay** - Delays selected packets for various exploits
 - **GuiMacros** - Execute macros in inventory/chest GUIs only
 - **SoftClose** - Instantly close chest/inventory GUIs
+
+### 🏛️ Vault Manager
+- **VaultManager** - Automatically loot items from Vault plugin GUIs
 
 ### ⚔️ Exploits
 - **Kick** - Multiple methods to kick yourself from servers
@@ -65,6 +68,13 @@ All modules can be configured through the Meteor Client GUI:
 - **Comprehensive Support**: Supports all major container types
 - **Simple Usage**: Activate module to close current GUI
 
+### VaultManager
+- **Auto Loot**: Automatically quick-moves all items from vault pages
+- **Page Navigation**: Auto-clicks next/previous page buttons
+- **Smart Detection**: Only activates on Vault plugin GUIs (title contains "Vault")
+- **Navigation Skip**: Automatically skips navigation arrow slots
+- **Configurable Delay**: Adjust click speed and page switch delay
+
 ### BundleDupe
 - **Configurable Slot ID**: Set custom bundle slot ID (negative values often work)
 - **Multiple Modes**: Basic and Advanced dupe modes
@@ -77,19 +87,19 @@ All modules can be configured through the Meteor Client GUI:
 ```bash
 ./gradlew clean build
 ```
-Output: `build/libs/softcore-addon-1.0.0-1.21.11.jar`
+Output: `build/libs/softcore-addon-1.0.1-1.21.11.jar`
 
 ### For Minecraft 1.21.10
 ```bash
 ./gradlew clean build "-PmcVersion=1.21.10"
 ```
-Output: `build/libs/softcore-addon-1.0.0-1.21.10.jar`
+Output: `build/libs/softcore-addon-1.0.1-1.21.10.jar`
 
 ### For Minecraft 1.21.4
 ```bash
 ./gradlew clean build "-PmcVersion=1.21.4"
 ```
-Output: `build/libs/softcore-addon-1.0.0-1.21.4.jar`
+Output: `build/libs/softcore-addon-1.0.1-1.21.4.jar`
 
 ### Build All Versions
 ```bash
@@ -101,9 +111,9 @@ Output: `build/libs/softcore-addon-1.0.0-1.21.4.jar`
 ## Version Support
 
 Each JAR is built for its specific Minecraft version:
-- **softcore-addon-1.0.0-1.21.4.jar** - For Minecraft 1.21.4
-- **softcore-addon-1.0.0-1.21.10.jar** - For Minecraft 1.21.10
-- **softcore-addon-1.0.0-1.21.11.jar** - For Minecraft 1.21.11
+- **softcore-addon-1.0.1-1.21.4.jar** - For Minecraft 1.21.4
+- **softcore-addon-1.0.1-1.21.10.jar** - For Minecraft 1.21.10
+- **softcore-addon-1.0.1-1.21.11.jar** - For Minecraft 1.21.11
 
 ## Requirements
 

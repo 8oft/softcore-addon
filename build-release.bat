@@ -12,7 +12,7 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-copy "build\libs\softcore-addon-1.0.0-1.21.11.jar" "release\softcore-addon-1.0.0-1.21.11.jar"
+copy "build\libs\softcore-addon-1.0.1-1.21.11.jar" "release\softcore-addon-1.0.1-1.21.11.jar"
 echo Build successful for 1.21.11 - Saved to release folder
 
 echo.
@@ -23,7 +23,7 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-copy "build\libs\softcore-addon-1.0.0-1.21.10.jar" "release\softcore-addon-1.0.0-1.21.10.jar"
+copy "build\libs\softcore-addon-1.0.1-1.21.10.jar" "release\softcore-addon-1.0.1-1.21.10.jar"
 echo Build successful for 1.21.10 - Saved to release folder
 
 echo.
@@ -34,16 +34,16 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-copy "build\libs\softcore-addon-1.0.0-1.21.4.jar" "release\softcore-addon-1.0.0-1.21.4.jar"
+copy "build\libs\softcore-addon-1.0.1-1.21.4.jar" "release\softcore-addon-1.0.1-1.21.4.jar"
 echo Build successful for 1.21.4 - Saved to release folder
 
 echo.
 echo All builds completed successfully!
 echo.
 echo JAR files saved in release\:
-echo - softcore-addon-1.0.0-1.21.11.jar
-echo - softcore-addon-1.0.0-1.21.10.jar
-echo - softcore-addon-1.0.0-1.21.4.jar
+echo - softcore-addon-1.0.1-1.21.11.jar
+echo - softcore-addon-1.0.1-1.21.10.jar
+echo - softcore-addon-1.0.1-1.21.4.jar
 echo.
 echo Total files in release folder:
 dir "release" /b

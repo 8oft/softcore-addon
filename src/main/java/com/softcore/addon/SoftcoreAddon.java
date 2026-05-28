@@ -41,6 +41,7 @@ public class SoftcoreAddon extends MeteorAddon {
         
         // Custom modules
         Modules.get().add(new SoftClose());
+        Modules.get().add(new VaultManager());
 
         // Commands
         Commands.add(new CommandExample());
