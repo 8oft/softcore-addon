@@ -132,20 +132,21 @@ public class VaultManager extends Module {
             Object packet = ctor.newInstance(args);
             mc.getNetworkHandler().sendPacket((Packet<?>) packet);
         } catch (Exception e) {
-            error("Failed to send click slot packet: " + e.getMessage());
+            error("Failed to send click slot packet: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    private Object getEmptyStack(Class<?> stackType) throws Exception {
+    private Object getEmptyStack(Class<?> stackType) {
         if (stackType == ItemStack.class) {
             return ItemStack.EMPTY;
         }
-        Class<?> itemStackHashClass = Class.forName("net.minecraft.screen.sync.ItemStackHash", false, getClass().getClassLoader());
-        if (stackType == itemStackHashClass) {
-            Field emptyField = itemStackHashClass.getField("EMPTY");
+        try {
+            Field emptyField = stackType.getField("EMPTY");
             return emptyField.get(null);
+        } catch (Exception e) {
+            return ItemStack.EMPTY;
         }
-        return ItemStack.EMPTY;
     }
 
     @Override
