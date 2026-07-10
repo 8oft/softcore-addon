@@ -32,16 +32,6 @@
 - **Category**: "Softcore" renamed to "Softcore Utils"
 - **BundleDupe** — replaced with full implementation (Timeout/Kick, 5 lag methods)
 - **PacketDelay** — added C2S packet filter
-- **GuiMoveBackpack** renamed to **SlotChangeBackpack**
-- All auto dupe modules now use `mc.interactionManager.interactItem()` (proper sequence) instead of raw packet with seq=0
-- Delays standardized — removed all hardcoded +500/+800 additions
-- Default `actionDelay` 500 to 800ms
-- ShiftRightClick: sneak held until GUI confirms open
-- InventoryRightClick: opens InventoryScreen then `interactItem()` (was broken)
-- CloseNormal adds `mc.setScreen(null)`
-- All `schedule()` / `onActivate()` wrapped in `mc.execute()` for main thread safety
-- BundleDupe MsTimer callbacks wrapped in `mc.execute()`
-- DesyncCommand added `currentScreenHandler == null` guard
 
 ### Fixed
 - **BundleDupe** — MsTimer callbacks on background thread (now main thread)
@@ -53,8 +43,6 @@
 
 ### Removed
 - All Meteor Rejects–inspired modules (AutoLogin, AutoDisconnect, etc.)
-- Standalone `.softclose` command (moved to `.gui softclose`)
-- ChunkUnloadBackpack
 
 ## [1.0.1] - 2026-05-29 - Vault Manager Update
 
