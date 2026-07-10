@@ -24,7 +24,6 @@ A Meteor Client addon with utility modules, exploits, and automation tools. Only
 | **SoftCloseChest** | Dupe cycle using a placed storage block (chest, barrel, etc.) |
 | **SoftCloseVault** | Dupe cycle using a command-based storage (e.g., /pv) |
 | **SlotChangeBackpack** | Duplicate items by dropping or moving backpack inside its own GUI |
-| **SwapCloneBackpack** | Swap backpack to offhand and clone contents via quick-move |
 
 All auto dupe modules support:
 - QuickMove/Pickup transfer modes
