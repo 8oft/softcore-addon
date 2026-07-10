@@ -1,85 +1,75 @@
 # Softcore Addon for Meteor Client
 
-A comprehensive Meteor Client addon featuring utility modules, exploits, and quality-of-life improvements.
+A Meteor Client addon with utility modules, exploits, and automation tools. Only uses classes from working, well-known addons (dupersunited-public-addon, ui-utils).
 
-**Version**: 1.0.1  
+**Version**: 2.0.0
 **Minecraft**: 1.21.4, 1.21.10, 1.21.11  
 **Meteor Client**: Latest snapshot
 
 ## Features
 
-### 🔧 Utility Modules
-- **AutoLogin** - Automatically logs you into servers when joining
-- **AntiCrash** - Prevents client crashes from malicious packets
-- **PacketDelay** - Delays selected packets for various exploits
-- **GuiMacros** - Execute macros in inventory/chest GUIs only
-- **SoftClose** - Instantly close chest/inventory GUIs
+### 🛠️ Softcore Utils
+| Module | Description |
+|--------|-------------|
+| **PacketDelay** | Delay selected packets — queue them, flush on deactivate |
+| **BundleDupe** | Bundle-based dupe with 2 methods (Timeout/Kick), 5 lag methods |
+| **GuiMacros** | Execute macros only inside GUIs (inventory/chest) |
+| **PacketLogger** | Log incoming/outgoing packets |
+| **SlotViewer** | Draws slot ID numbers on every GUI slot |
 
-### 🏛️ Vaults Plugin Dupe
-- **Vaults Plugin Dupe** - Automatically loot items from Vault plugin GUIs
+### 🏆 Softcore Auto Dupe
+| Module | Description |
+|--------|-------------|
+| **SoftCloseBackpack** | Dupe cycle using a backpack/shulker in hand — dump, close, reopen, steal, soft-open, steal, close |
+| **SoftCloseChest** | Dupe cycle using a placed storage block (chest, barrel, etc.) |
+| **SoftCloseVault** | Dupe cycle using a command-based storage (e.g., /pv) |
+| **SlotChangeBackpack** | Duplicate items by dropping or moving backpack inside its own GUI |
+| **SwapCloneBackpack** | Swap backpack to offhand and clone contents via quick-move |
 
-### ⚔️ Exploits
-- **Kick** - Multiple methods to kick yourself from servers
-- **BundleDupe** - Bundle-based duplication exploit
+All auto dupe modules support:
+- QuickMove/Pickup transfer modes
+- Configurable click-delay and action-delay
+- Repeat mode — auto-repeat until inventory has only 1 empty main slot left
+- RightClick / ShiftRightClick / InventoryRightClick interact modes
+
+### Commands
+| Command | Description |
+|---------|-------------|
+| `.action open` | Interact with the block you're looking at (chests, etc.) |
+| `.clickslot <slot> <button> <action>` | Raw slot click (aliases: `.cs`, `.cslot`) |
+| `.delaypackets on/off` | Toggle ui-utils packet delaying |
+| `.desync` | Close GUI server-side, keep open client-side |
+| `.disconnectpackets` | Flush delayed packets then disconnect |
+| `.gui save` / `.gui load` | Save/restore GUI state (req. ui-utils) |
+| `.gui steal <pickup\|quickmove> [delay]` | Mass take items from container |
+| `.gui dump <pickup\|quickmove> [delay]` | Mass deposit items into container |
+| `.gui offhand <slot>` | Swap slot item to offhand |
+| `.gui drop <slot> [all]` | Drop item from slot |
+| `.gui close` | Close GUI normally |
+| `.gui softclose` | Close GUI without packet |
+| `.repeat <times> <cmd>` | Repeat chat command N times, `%index%` |
+| `.wait <ms> <cmd>` | Execute command after delay |
+| `.repeat-delay <ms> <times> <cmd>` | Repeat with stagger delay |
+| `.sendpackets on/off` | Toggle ui-utils packet sending |
+
+## Requirements
+
+- **Minecraft**: Java 21 or higher
+- **Meteor Client**: Latest version
+- **Fabric Loader**: 0.18.2 or higher
+- **[UI Utils](https://github.com/Coderx-Gamer/ui-utils)** (optional) — enables `.gui save/load`, `.delaypackets`, `.sendpackets`, `.disconnectpackets`
 
 ## Installation
 
 1. Download the latest release from the [Releases](https://github.com/8oft/meteor-softcore-addon/releases) page
-2. Place the JAR file in your `.minecraft/mods` folder
+2. Place the JAR in `.minecraft/mods`
 3. Launch Minecraft with Meteor Client
-4. The addon will be automatically loaded
 
 ## Configuration
 
-All modules can be configured through the Meteor Client GUI:
-- Navigate to `Modules` → `Softcore` category
-- Click on any module to configure its settings
-- Use `.t <module> on/off` to toggle modules
-
-## Module Details
-
-### AutoLogin
-- **Smart Detection**: Automatically detects login commands from chat
-- **Configurable Commands**: Set custom login and register commands
-- **Delay Setting**: Adjustable delay before executing commands
-- **Server Support**: Works with most authentication plugins
-
-### AntiCrash
-- **Packet Filtering**: Blocks explosion packets and excessive particle spam
-- **Crash Prevention**: Prevents common crash attempts
-- **Logging**: Optional logging of blocked crash attempts
-- **Lightweight**: Minimal performance impact
-
-### PacketDelay
-- **Packet Selection**: Choose which packets to delay
-- **Queue System**: Packets are queued and sent on deactivation
-- **Logging**: Optional packet logging for debugging
-- **Exploit Support**: Useful for various packet-based exploits
-
-### GuiMacros
-- **GUI Restricted**: Only works in inventory/chest GUIs (not pause/chat)
-- **Three Macros**: Configure up to 3 custom macros
-- **Simple Commands**: Use `.macro1`, `.macro2`, `.macro3` in chat
-- **Valid GUIs**: Supports chests, inventory, crafting tables, anvils, enchantment tables, brewing stands, furnaces, hoppers, shulker boxes, beacons, lecterns, looms, cartography tables, grindstones, and smithing tables
-
-### SoftClose
-- **Instant Closing**: Close GUIs without animation
-- **Smart Detection**: Only works in valid container GUIs
-- **Comprehensive Support**: Supports all major container types
-- **Simple Usage**: Activate module to close current GUI
-
-### Vaults Plugin Dupe
-- **Auto Loot**: Automatically quick-moves all items from vault pages
-- **Page Navigation**: Auto-clicks next/previous page buttons
-- **Smart Detection**: Only activates on Vault plugin GUIs (title contains "Vault")
-- **Navigation Skip**: Automatically skips navigation arrow slots
-- **Configurable Delay**: Adjust click speed and page switch delay
-
-### BundleDupe
-- **Configurable Slot ID**: Set custom bundle slot ID (negative values often work)
-- **Multiple Modes**: Basic and Advanced dupe modes
-- **Packet Interception**: Intercepts and modifies bundle-related packets
-- **Container Support**: Works in any container screen
+All modules configurable through Meteor Client GUI:
+- **Softcore Utils** category — utility modules
+- **Softcore Auto Dupe** category — dupe automation
 
 ## Building
 
@@ -87,45 +77,25 @@ All modules can be configured through the Meteor Client GUI:
 ```bash
 ./gradlew clean build
 ```
-Output: `build/libs/softcore-addon-1.0.1-1.21.11.jar`
+Output: `build/libs/softcore-addon-2.0.0-1.21.11.jar`
 
 ### For Minecraft 1.21.10
 ```bash
 ./gradlew clean build "-PmcVersion=1.21.10"
 ```
-Output: `build/libs/softcore-addon-1.0.1-1.21.10.jar`
+Output: `build/libs/softcore-addon-2.0.0-1.21.10.jar`
 
 ### For Minecraft 1.21.4
 ```bash
 ./gradlew clean build "-PmcVersion=1.21.4"
 ```
-Output: `build/libs/softcore-addon-1.0.1-1.21.4.jar`
-
-### Build All Versions
-```bash
-./gradlew clean build
-./gradlew clean build "-PmcVersion=1.21.10"
-./gradlew clean build "-PmcVersion=1.21.4"
-```
-
-## Version Support
-
-Each JAR is built for its specific Minecraft version:
-- **softcore-addon-1.0.1-1.21.4.jar** - For Minecraft 1.21.4
-- **softcore-addon-1.0.1-1.21.10.jar** - For Minecraft 1.21.10
-- **softcore-addon-1.0.1-1.21.11.jar** - For Minecraft 1.21.11
-
-## Requirements
-
-- **Minecraft**: Java 21 or higher
-- **Meteor Client**: Latest version
-- **Fabric Loader**: 0.18.2 or higher
+Output: `build/libs/softcore-addon-2.0.0-1.21.4.jar`
 
 ## Credits
 
-- **Meteor Client** - Base client framework
-- **meteor-rejects** - Inspiration for AutoLogin, AntiCrash, and Kick modules
-- **dupersunited-public-addon** - Inspiration for PacketDelay, BundleDupe, and GuiMacros modules
+- **Meteor Client** — Base client framework
+- **dupersunited-public-addon** — PacketDelay, BundleDupe, GuiMacros, ClickSlotCommand, RepeatCommand, WaitCommand, RepeatDelayCommand, ForEachPlayerCommand
+- **UI Utils** — SharedVariables bridge for save/load, delay/send packets commands
 
 ## Changelog
 
@@ -133,4 +103,4 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 
 ---
 
-**Disclaimer**: This addon is for educational purposes only. Use responsibly and follow server rules.
+**Disclaimer**: For educational purposes only. Use responsibly.

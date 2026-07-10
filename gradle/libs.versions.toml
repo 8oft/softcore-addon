@@ -1,5 +1,5 @@
 [versions]
-mod-version = "1.0.1"
+mod-version = "2.0.0"
 
 # Fabric (https://fabricmc.net/develop)
 # Yarn version is overridden based on mcVersion property in build.gradle.kts
