@@ -3,7 +3,7 @@
 A Meteor Client addon with utility modules, exploits, and automation tools. Only uses classes from working, well-known addons (dupersunited-public-addon, ui-utils).
 
 **Version**: 2.0.0
-**Minecraft**: 1.21.4, 1.21.10, 1.21.11  
+**Minecraft**: 1.21.10, 1.21.11
 **Meteor Client**: Latest snapshot
 
 ## Features
@@ -84,12 +84,6 @@ Output: `build/libs/softcore-addon-2.0.0-1.21.11.jar`
 ./gradlew clean build "-PmcVersion=1.21.10"
 ```
 Output: `build/libs/softcore-addon-2.0.0-1.21.10.jar`
-
-### For Minecraft 1.21.4
-```bash
-./gradlew clean build "-PmcVersion=1.21.4"
-```
-Output: `build/libs/softcore-addon-2.0.0-1.21.4.jar`
 
 ## Credits
 

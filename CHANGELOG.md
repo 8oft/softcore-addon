@@ -1,85 +1,60 @@
 # Changelog
 
-## [2.0.0] - 2026-07-08 - Major Rewrite (continued)
+## [2.0.0] - 2026-07-08 - Major Rewrite
 
 ### Added
+- **Softcore Auto Dupe** category — separate tab from Softcore Utils
 - **SwapCloneBackpack** — swap backpack to offhand and clone contents via quick-move
 - **SlotChangeBackpack** — duplicate items by dropping or moving backpack inside its own GUI
   - Drop mode: dump items, throw backpack, pick up from ground, recover duped items
   - Move mode: dump items, move backpack to another slot, reopen, recover duped items
-  - Configurable interact-mode (RightClick/ShiftRightClick/InventoryRightClick), dupe-method (Drop/Move), click-delay, action-delay
+  - Configurable interact-mode, dupe-method, click-delay, action-delay
   - Repeat mode — auto-repeat until inventory has only 1 empty main slot left
 - **SoftCloseBackpack, SoftCloseChest, SoftCloseVault** — auto-dupe cycle modules (dump > reopen > steal > soft-open > steal > close)
-  - Configurable mode (QuickMove/Pickup), interact-mode (RightClick/ShiftRightClick/InventoryRightClick)
+  - Configurable mode (QuickMove/Pickup), interact-mode
   - Repeat mode on all modules
-- **DesyncCommand** NPE guard — added `currentScreenHandler == null` check before accessing `syncId`
-
-### Changed
-- **GuiMoveBackpack** renamed to **SlotChangeBackpack**
-- All auto dupe modules now use `mc.interactionManager.interactItem()` (proper 1.21.1 sequence number) instead of raw `PlayerInteractItemC2SPacket` with hardcoded sequence=0
-- Delays standardized — removed all hardcoded +500/+800 additions, each phase uses `actionDelay` consistently with nested schedule pattern for reopen steps
-- Default `actionDelay` 500 to 800ms for consistent timing
-- ShiftRightClick: sneak now held until GUI confirms open (not released after 100ms)
-- InventoryRightClick: now opens InventoryScreen client-side then calls `interactItem()` (was broken: sent ClickSlotC2SPacket button=1 which only splits stacks)
-- CloseNormal adds `mc.setScreen(null)` to prevent stale GUI state
-- All `schedule()` callbacks wrapped in `mc.execute()` for main thread safety
-- `onActivate()` wrapped in `mc.execute()` for main thread safety
-- BundleDupe — MsTimer callbacks wrapped in `mc.execute()` for main thread safety
-
-### Fixed
-- **BundleDupe** — MsTimer callbacks calling `toggle()`, `sendInteractItem()`, `executeLagMethod()` on background thread (now wrapped in `mc.execute()`)
-- **All dupe modules** — `currentScreenHandler == null` guard added before access
-- **All dupe modules** — `schedule()` onDone callbacks now run `mc.execute()` (was running MsTimer thread)
-- **Reopen timing** — interact and GUI check were scheduled at same delay, now nested so check runs `actionDelay` after interact
-- **RightClick/ShiftRightClick interact** — now uses `mc.interactionManager.interactItem()` with correct sequence (was hardcoded `PlayerInteractItemC2SPacket(..., 0, ...)` which 1.21.1 servers reject)
-
-### Removed
-- **ChunkUnloadBackpack** — removed entirely
-
-## [2.0.0] - 2026-07-08 - Major Rewrite (original release)
-
-### Added
-- **Softcore Auto Dupe** category — separate tab from Softcore Utils
-- **AutoSoftClose** — fully automated dupe cycle: dump > reopen > steal > soft-reopen > steal > close
-  - Configurable `open-command`, `click-delay`, `action-delay`, `mode` (QuickMove/Pickup)
-  - Works on any storage plugin via command
-  - No GUI-required precondition — toggles from anywhere
-- **SlotViewer** — draws slot ID numbers on every GUI slot (container + inventory)
-  - Configurable text color
+- **AutoSoftClose** — fully automated dupe cycle (legacy)
+- **SlotViewer** — draws slot ID numbers on every GUI slot
 - **Commands:**
-  - `.clickslot <slot> <button> <action>` — raw slot click with optional `times` + `type`
-  - `.repeat <times> <cmd>` — repeat chat command N times, `%index%` placeholder
+  - `.clickslot <slot> <button> <action>` — raw slot click
+  - `.repeat <times> <cmd>` — repeat chat command, `%index%` placeholder
   - `.wait <ms> <cmd>` — delayed command execution
-  - `.repeat-delay <ms> <times> <cmd>` — repeat with delay between each
-  - `.action open` — `PlayerInteractBlockC2SPacket` to open targeted block
-  - `.gui save` / `.gui load` — save/restore GUI state via ui-utils
-  - `.gui close` — close GUI normally
-  - `.gui softclose` — close GUI without packet (moved from standalone `.softclose`)
-  - `.gui steal <pickup|quickmove> [delay]` — mass take items with staggered clicks
-  - `.gui dump <pickup|quickmove> [delay]` — mass deposit items
-  - `.gui offhand <slot>` — swap item to offhand
-  - `.gui drop <slot> [all]` — drop item from slot (1 or stack)
+  - `.repeat-delay <ms> <times> <cmd>` — repeat with stagger delay
+  - `.action open` — interact with targeted block
+  - `.gui save/load/close/softclose/steal/dump/offhand/drop`
   - `.desync` — close GUI server-side only
-  - `.disconnectpackets` — flush delayed packets then disconnect
-  - `.delaypackets on/off` — toggle ui-utils packet delaying
-  - `.sendpackets on/off` — toggle ui-utils packet sending
+  - `.disconnectpackets`, `.delaypackets`, `.sendpackets`
 - **UiUtilsBridge** — reflection bridge to `com.ui_utils.SharedVariables`
-- **EnumArgumentType** — generic enum argument type for brigadier commands
-- **MsTimer** — scheduled executor utility (ported from du-addon-public)
+- **EnumArgumentType** — generic enum argument type
+- **MsTimer** — scheduled executor utility
 
 ### Changed
 - **Category**: "Softcore" renamed to "Softcore Utils"
-- **BundleDupe** — replaced stub with full implementation from du-addon-public (Timeout/Kick methods, 5 lag methods, KeepAlive cancellation, NBT exploit packets)
-- **PacketDelay** — added C2S packet filter, uses `PacketUtils.getC2SPackets()`
-
-### Removed
-- All Meteor Rejects-inspired modules: AutoLogin, AutoDisconnect, HotbarSwapExploit, InventoryCloseCanceller, Kick, SoftClose, VaultManager, AntiCrash, ModuleExample
-- Standalone `.softclose` command (moved to `.gui softclose`)
-- Old `CommandExample.java`
+- **BundleDupe** — replaced with full implementation (Timeout/Kick, 5 lag methods)
+- **PacketDelay** — added C2S packet filter
+- **GuiMoveBackpack** renamed to **SlotChangeBackpack**
+- All auto dupe modules now use `mc.interactionManager.interactItem()` (proper sequence) instead of raw packet with seq=0
+- Delays standardized — removed all hardcoded +500/+800 additions
+- Default `actionDelay` 500 to 800ms
+- ShiftRightClick: sneak held until GUI confirms open
+- InventoryRightClick: opens InventoryScreen then `interactItem()` (was broken)
+- CloseNormal adds `mc.setScreen(null)`
+- All `schedule()` / `onActivate()` wrapped in `mc.execute()` for main thread safety
+- BundleDupe MsTimer callbacks wrapped in `mc.execute()`
+- DesyncCommand added `currentScreenHandler == null` guard
 
 ### Fixed
-- **ui-utils detection** — reflection retries on every call (no permanent failure cache), uses context classloader fallback
-- **PICKUP mode** in steal/dump — 2-click sequence (pickup + place) instead of orphaned pickup
+- **BundleDupe** — MsTimer callbacks on background thread (now main thread)
+- **All dupe modules** — `currentScreenHandler == null` guard, `mc.execute()` wrapping
+- **Reopen timing** — check nested inside interact schedule
+- **RightClick/ShiftRightClick** — proper 1.21.1 sequence handling
+- **ui-utils detection** — reflection retries on every call
+- **PICKUP mode** — 2-click sequence instead of orphaned pickup
+
+### Removed
+- All Meteor Rejects–inspired modules (AutoLogin, AutoDisconnect, etc.)
+- Standalone `.softclose` command (moved to `.gui softclose`)
+- ChunkUnloadBackpack
 
 ## [1.0.1] - 2026-05-29 - Vault Manager Update
 
@@ -146,51 +121,21 @@
 ### Added
 - Dual-version build system supporting Minecraft 1.21.4 and 1.21.11
 - `./gradlew buildAll` - Builds separate JARs for both versions automatically
-- Version-specific JAR outputs: `softcore-addon-0.2.0-1.21.4.jar` and `softcore-addon-0.2.0-1.21.11.jar`
+- Version-specific JAR outputs
 
 ### Changed
 - Updated version from 0.1.0 to 0.2.0
-- Refactored build.gradle.kts to support dynamic version selection
-- Added version mapping for yarn, meteor, and minecraft dependencies in build.gradle.kts
-- JAR filenames now include target Minecraft version
-- Updated fabric.mod.json to use version template variable (filled per build)
-- Improved README with comprehensive build instructions
-- Added gradle.properties configuration for build targeting
-
-### Technical Details
-- Each build generates a JAR specifically optimized for its target version
-- Version selection via `-PmcVersion=1.21.4` or `-PmcVersion=1.21.11` (default)
-- Version mapping centralized in build.gradle.kts for easy maintenance
-- No shared single JAR - each version gets its own artifact for reliability
-
-### Build Commands
-```bash
-# Build for all versions at once
-./gradlew buildAll
-
-# Build for 1.21.11 (default)
-./gradlew build
-
-# Build for 1.21.4
-./gradlew build -PmcVersion=1.21.4
-```
+- Refactored build.gradle.kts for dynamic version selection
+- Added version mapping for yarn, meteor, and minecraft dependencies
 
 ---
 
 ## [0.1.0] - Initial Release
 
 ### Features
-- InventoryCloseCanceller - Block inventory close packets
-- InventoryCloseDelayer - Delay close packets for testing
-- HotbarSwapExploit - Test hotbar swap timing exploits
-- ShiftClickExploit - Test shift-click inventory operations
-- ChestReopenHelper - Quickly reopen chests
-- RaceConditionTester - Test race condition vulnerabilities
-- ItemDupeHelper - Track and assist with item testing
-- DeathChestDebugger - Debug Death Chest plugin interactions
-- PacketLogger - Log all incoming/outgoing packets
-- AutoDisconnect - Auto-disconnect after delay
+- InventoryCloseCanceller, InventoryCloseDelayer, HotbarSwapExploit
+- ShiftClickExploit, ChestReopenHelper, RaceConditionTester
+- ItemDupeHelper, DeathChestDebugger, PacketLogger, AutoDisconnect
 
 ### Target
-- Minecraft 1.21.11
-- Meteor Client
+- Minecraft 1.21.11, Meteor Client
